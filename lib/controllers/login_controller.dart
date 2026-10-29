@@ -6,11 +6,18 @@ import '../services/storage_service.dart';
 
 class LoginController extends GetxController {
   final formKey = GlobalKey<FormState>();
-  final identifierController = TextEditingController();
-  final passwordController = TextEditingController();
+  late final TextEditingController identifierController;
+  late final TextEditingController passwordController;
 
   final RxBool isLoading = false.obs;
   final RxBool obscurePassword = true.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    identifierController = TextEditingController();
+    passwordController = TextEditingController();
+  }
 
   void togglePasswordVisibility() {
     obscurePassword.value = !obscurePassword.value;
@@ -24,7 +31,7 @@ class LoginController extends GetxController {
     isLoading.value = true;
 
     final response = await ApiService.login(
-      identifier: identifierController.text.trim(),
+      identifier: identifierController.text.trim().toLowerCase(),
       password: passwordController.text,
     );
 
@@ -74,4 +81,3 @@ class LoginController extends GetxController {
     super.onClose();
   }
 }
-

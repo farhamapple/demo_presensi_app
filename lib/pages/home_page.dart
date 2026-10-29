@@ -17,7 +17,7 @@ class HomePage extends StatelessWidget {
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         title: Text(
-          'SiAbsen',
+          'Si Presensi',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: const Color(0xFF1E293B),
