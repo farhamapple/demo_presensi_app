@@ -5,6 +5,7 @@ import '../models/attendance_model.dart';
 import '../models/history_response_model.dart';
 import '../models/login_response_model.dart';
 import '../models/office_location_model.dart';
+import '../models/user_model.dart';
 import 'storage_service.dart';
 
 class ApiResponse<T> {
@@ -104,6 +105,71 @@ class ApiService {
       return ApiResponse(
         isSuccess: false,
         message: 'Gagal terhubung ke server: $e',
+      );
+    }
+  }
+
+  // 1.1 Auth: Get Profile (/me)
+  static Future<ApiResponse<UserModel>> getMe() async {
+    try {
+      final url = Uri.parse('$baseUrl/auth/me');
+      final response = await http.get(
+        url,
+        headers: await _getHeaders(withAuth: true),
+      );
+
+      final Map<String, dynamic> responseData =
+          response.body.isNotEmpty ? jsonDecode(response.body) : {};
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final userData = responseData['data'] is Map<String, dynamic>
+            ? UserModel.fromJson(responseData['data'] as Map<String, dynamic>)
+            : null;
+        return ApiResponse(
+          isSuccess: true,
+          data: userData,
+        );
+      } else {
+        return ApiResponse(
+          isSuccess: false,
+          message: _extractErrorMessage(response.statusCode, responseData),
+        );
+      }
+    } catch (e) {
+      return ApiResponse(
+        isSuccess: false,
+        message: 'Gagal mengambil data profil: $e',
+      );
+    }
+  }
+
+  // 1.2 Auth: Logout (/auth/logout)
+  static Future<ApiResponse<void>> logout() async {
+    try {
+      final url = Uri.parse('$baseUrl/auth/logout');
+      final response = await http.post(
+        url,
+        headers: await _getHeaders(withAuth: true),
+      );
+
+      final Map<String, dynamic> responseData =
+          response.body.isNotEmpty ? jsonDecode(response.body) : {};
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return ApiResponse(
+          isSuccess: true,
+          message: responseData['message'] as String? ?? 'Logout berhasil',
+        );
+      } else {
+        return ApiResponse(
+          isSuccess: false,
+          message: _extractErrorMessage(response.statusCode, responseData),
+        );
+      }
+    } catch (e) {
+      return ApiResponse(
+        isSuccess: false,
+        message: 'Gagal melakukan logout: $e',
       );
     }
   }
