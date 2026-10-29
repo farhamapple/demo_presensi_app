@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import '../models/attendance_model.dart';
+import '../models/history_response_model.dart';
 import '../models/login_response_model.dart';
 import '../models/office_location_model.dart';
 import 'storage_service.dart';
@@ -277,6 +278,57 @@ class ApiService {
       return ApiResponse(
         isSuccess: false,
         message: 'Gagal mengirim presensi pulang: $e',
+      );
+    }
+  }
+
+  // 6. Attendance History: GET /attendance/history
+  static Future<ApiResponse<HistoryResponseModel>> getAttendanceHistory({
+    int page = 1,
+    int perPage = 15,
+    String? startDate,
+    String? endDate,
+  }) async {
+    try {
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'per_page': perPage.toString(),
+      };
+      if (startDate != null && startDate.isNotEmpty) {
+        queryParams['start_date'] = startDate;
+      }
+      if (endDate != null && endDate.isNotEmpty) {
+        queryParams['end_date'] = endDate;
+      }
+
+      final uri = Uri.parse('$baseUrl/attendance/history')
+          .replace(queryParameters: queryParams);
+
+      final response = await http.get(
+        uri,
+        headers: await _getHeaders(withAuth: true),
+      );
+
+      final Map<String, dynamic> responseData =
+          response.body.isNotEmpty ? jsonDecode(response.body) : {};
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final historyModel = HistoryResponseModel.fromJson(responseData);
+        return ApiResponse(
+          isSuccess: true,
+          data: historyModel,
+        );
+      } else {
+        return ApiResponse(
+          isSuccess: false,
+          message: _extractErrorMessage(response.statusCode, responseData),
+          errors: responseData['errors'] as Map<String, dynamic>?,
+        );
+      }
+    } catch (e) {
+      return ApiResponse(
+        isSuccess: false,
+        message: 'Gagal mengambil data riwayat presensi: $e',
       );
     }
   }

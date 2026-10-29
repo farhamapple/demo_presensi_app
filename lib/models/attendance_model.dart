@@ -26,6 +26,7 @@ class AttendanceRecord {
   final double? distanceMeters;
   final AttendanceStatus? status;
   final String? notes;
+  final String? deviceName;
 
   AttendanceRecord({
     this.id,
@@ -35,6 +36,7 @@ class AttendanceRecord {
     this.distanceMeters,
     this.status,
     this.notes,
+    this.deviceName,
   });
 
   factory AttendanceRecord.fromJson(Map<String, dynamic> json) {
@@ -48,6 +50,7 @@ class AttendanceRecord {
           ? AttendanceStatus.fromJson(json['status'] as Map<String, dynamic>)
           : null,
       notes: json['notes'] as String?,
+      deviceName: json['device_name'] as String?,
     );
   }
 }
